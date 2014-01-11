@@ -3,7 +3,13 @@ require 'grape'
 require 'redis'
 require 'redis-namespace'
 
-REDIS = Redis::Namespace.new(:ucchusma, redis: Redis.new)
+if ENV["REDISTOGO_URL"]
+  uri = URI.parse(ENV["REDISTOGO_URL"])
+  redis = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
+else
+  redis =  Redis.new
+end
+REDIS = Redis::Namespace.new(:ucchusma, redis: redis)
 
 class API < Grape::API
   format :json
