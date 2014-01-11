@@ -15,14 +15,42 @@ class API < Grape::API
   format :json
   default_format :json
 
+  helpers do
+    def check_token!
+      error!('Invalid Token.') unless params[:token] == ENV['TOKEN']
+    end
+  end
+
   namespace 'api/v1' do
+
+    resource :info do
+      params do
+        requires :token, type: String
+      end
+      get do
+        check_token!
+        REDIS.hgetall :info
+      end
+
+      params do
+        requires :token,   type: String
+        requires :message, type: String
+      end
+      put do
+        check_token!
+        REDIS.hmset :info, :message, params[:message], :updated_at, Time.now
+        true
+      end
+
+    end
+
     resources :rooms do
       params do
         requires :id, type: Integer
       end
       namespace ':id' do
         get do
-          REDIS.hgetall(params[:id])
+          REDIS.hgetall params[:id]
         end
 
         params do
@@ -30,7 +58,7 @@ class API < Grape::API
           requires :token,     type: String
         end
         put do
-          error!('Invalid Token.') unless params[:token] == ENV['TOKEN']
+          check_token!
           REDIS.hmset params[:id], :status, params[:status], :updated_at, Time.now
           true
         end
