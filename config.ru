@@ -39,7 +39,7 @@ class API < Grape::API
       put do
         check_token!
         REDIS.hmset :info, :message, params[:message], :updated_at, Time.now
-        true
+        { status: 'success' }
       end
 
     end
@@ -60,7 +60,7 @@ class API < Grape::API
         put do
           check_token!
           REDIS.hmset params[:id], :status, params[:status], :updated_at, Time.now
-          true
+          { status: 'success' }
         end
       end
     end
