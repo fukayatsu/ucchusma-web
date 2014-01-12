@@ -69,7 +69,7 @@ end
 
 class Web < Sinatra::Base
   get '/' do
-    "It works!"
+    "It is #{REDIS.hget(1, :status)}!"
   end
 end
 
